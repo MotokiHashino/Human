@@ -4,10 +4,34 @@
 #include <vector>
 #include <algorithm>
 
-#define MAP_HEIGHT  8
-#define MAP_WIDTH   8
-
 using namespace std;
+
+struct Const
+{
+    static const int QUEUE_CAPACITY = 64;
+
+};
+
+struct Maps
+{
+    struct Const
+    {
+        static const int HEIGHT     = 8;
+        static const int WIDTH      = 8;
+
+    };
+    static inline const int FIELD_A[Const::HEIGHT][Const::WIDTH] = 
+    {
+        { 0, 0, 1, 0, 0, 0, 0, 0},
+        { 0, 1, 1, 0, 1, 0, 1, 0},
+        { 0, 1, 1, 0, 1, 0, 1, 0},
+        { 0, 0, 0, 0, 1, 0, 1, 0},
+        { 0, 1, 0, 1, 1, 1, 0, 0},
+        { 0, 1, 0, 1, 1, 0, 0, 1},
+        { 0, 0, 0, 1, 1, 1, 0, 1},
+        { 0, 1, 0, 0, 0, 1, 0, 1}
+    };
+};
 
 struct Plane
 {
@@ -27,28 +51,16 @@ struct Plane
 
 int main()
 {
-    int map[MAP_HEIGHT][MAP_WIDTH] = 
-    {
-        { 0, 0, 1, 0, 0, 0, 0, 0},
-        { 0, 1, 1, 0, 1, 0, 1, 0},
-        { 0, 1, 1, 0, 1, 0, 1, 0},
-        { 0, 0, 0, 0, 1, 0, 1, 0},
-        { 0, 1, 0, 1, 1, 1, 0, 0},
-        { 0, 1, 0, 1, 1, 0, 0, 1},
-        { 0, 0, 0, 1, 1, 1, 0, 1},
-        { 0, 1, 0, 0, 0, 1, 0, 1}
-    };
-
-    Plane start = {2,3};
-    Plane goal = {6,6};
+    Plane start = {2, 3};
+    Plane goal = {6, 6};
 
     vector<Plane> path;
-    vector<Plane> stack;
-    bool visited[MAP_HEIGHT][MAP_WIDTH];
-    Plane parent[MAP_HEIGHT][MAP_WIDTH];
-    for (int i = 0; i < MAP_HEIGHT; ++i)
+    vector<Plane> queue;
+    bool visited[Maps::Const::HEIGHT][Maps::Const::WIDTH];
+    Plane parent[Maps::Const::HEIGHT][Maps::Const::WIDTH];
+    for (int i = 0; i < Maps::Const::HEIGHT; ++i)
     {
-        for (int j = 0; j < MAP_WIDTH; ++j)
+        for (int j = 0; j < Maps::Const::WIDTH; ++j)
         {
             visited[i][j] = false;
             parent[i][j] = {-1, -1};
@@ -57,17 +69,21 @@ int main()
 
     vector<Plane> directions = 
     {
-        {-1,0},{0,-1},{1,0},{0,1}
+        {-1, 0}, {0, -1}, {1, 0}, {0, 1}
     };
 
-    stack.push_back(start);
+    int enqueueCount = 0, dequeueCount = 0;
+    int loopCount = 0;
+    queue.resize(Const::QUEUE_CAPACITY - 1, {-1, -1});
+    queue[enqueueCount] = start;
+    ++enqueueCount;
     visited[start.y][start.x] = true;
 
-    while (stack.size() > 0)
+    while (enqueueCount % Const::QUEUE_CAPACITY != dequeueCount % Const::QUEUE_CAPACITY)
     {
-        Plane pos = stack.back();
-        stack.pop_back();
-
+        Plane pos = queue[loopCount % Const::QUEUE_CAPACITY];
+        queue[dequeueCount % Const::QUEUE_CAPACITY] = {-1, -1};
+        ++dequeueCount;
         // ゴール判定
         if (pos.x == goal.x && pos.y == goal.y)
         {
@@ -75,35 +91,35 @@ int main()
 
             while (!(current.x == start.x && current.y == start.y))
                 {
-                    path.insert(path.begin(),current);
+                    path.insert(path.begin(), current);
                     current = parent[current.y][current.x];
-
                 }
-            path.insert(path.begin(),start);
-
+            path.insert(path.begin(), start);
             break;
         }
 
-        //探索処理
+        // 探索処理
         for (int i = 0; i < directions.size(); ++i)
         {
             int searchX = pos.x + directions[i].x;
             int searchY = pos.y + directions[i].y;
-            if (searchX >= 0 && searchX < MAP_WIDTH && searchY >= 0 && searchY < MAP_HEIGHT)
+            if (searchX >= 0 && searchX < Maps::Const::WIDTH && searchY >= 0 && searchY < Maps::Const::HEIGHT)
             {
-                if(map[searchY][searchX] == 0 && !visited[searchY][searchX])
+                if(Maps::FIELD_A[searchY][searchX] == 0 && !visited[searchY][searchX])
                 {
-                    Plane hold = {searchX,searchY};
-                    auto it = find(stack.begin(), stack.end(), hold);
-                    if (it == stack.end())
+                    Plane hold = {searchX, searchY};
+                    auto it = find(queue.begin(), queue.end(), hold);
+                    if (it == queue.end())
                     {
-                    stack.emplace_back(hold);
+                    queue[enqueueCount % Const::QUEUE_CAPACITY] = hold;
+                    ++enqueueCount;
                     visited[searchY][searchX] = true;
                     parent[searchY][searchX] = pos;
                     }
                 }
             }
         }
+        ++loopCount;
     }
 
     // エラー判定
