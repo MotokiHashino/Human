@@ -29,7 +29,6 @@ int main()
             {
                 break;
             }
-
         }
 
         //配列の対応するindexに値を挿入
@@ -45,7 +44,6 @@ int main()
                 afterSortCharacters[j] = afterSortCharacters[j - 1];
             }
         }
-
     }
 
     //表示

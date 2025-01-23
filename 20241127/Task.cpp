@@ -48,7 +48,7 @@ class CQueueChar//char型キュークラス
 private:
     int enqueueCount = 0;
     int dequeueCount = 0;
-    char characters[6];
+    char characters[20];
 
 public:
     void enqueue(char character)
@@ -108,61 +108,49 @@ public:
 
 };
 
+void stackProcess()
+{
+    std::cout << "Stack" << std::endl;
+    CStackChar stack;
+    for (char character = 'A'; character <= 'Z'; ++character)
+    {
+        stack.push(character);
+        stack.debugLog();
+        if (character % 3 == 0)
+        {
+            std::cout << stack.pop() << " " << stack.debugDescription() << std::endl;
+        }
+    
+    }
+    std::cout << std::endl;
+}
+
+void queueProcess()
+{
+    std::cout << "Queue" << std::endl;
+    CQueueChar queue;
+    for (char character = 'A'; character <= 'Z'; ++character)
+    {
+        queue.enqueue(character);
+        queue.debugLog();
+        if (character % 3 == 0)
+        {
+            std::cout << queue.dequeue() << " " << queue.debugDescription() << std::endl;
+        }
+    
+    }
+    std::cout << std::endl;
+}
+
 int main()
 {
     char result;
 
     //スタック演習
-    CStackChar stack;
-    stack.push('A');
-    stack.debugLog();
-    stack.push('B');
-    stack.debugLog();
-    stack.push('C');
-    stack.debugLog();
-    result = stack.pop();
-    std::cout << result << " " << stack.debugDescription() << std::endl;
-    stack.push('D');
-    stack.debugLog();
-    result = stack.pop();
-    std::cout << result << " " << stack.debugDescription() << std::endl;
-    result = stack.pop();
-    std::cout << result << " " << stack.debugDescription() << std::endl;
-    std::cout << std::endl;
+    stackProcess();
 
     //キュー演習
-    CQueueChar queue;
-    queue.enqueue('E');
-    queue.debugLog();
-    queue.enqueue('F');
-    queue.debugLog();
-    queue.enqueue('G');
-    queue.debugLog();
-    result = queue.dequeue();
-    std::cout << result << " " << queue.debugDescription() << std::endl;
-    result = queue.dequeue();
-    std::cout << result << " " << queue.debugDescription() << std::endl;
-    queue.enqueue('H');
-    queue.debugLog();
-    queue.enqueue('I');
-    queue.debugLog();
-    queue.enqueue('J');
-    queue.debugLog();
-    result = queue.dequeue();
-    std::cout << result << " " << queue.debugDescription() << std::endl;
-    queue.enqueue('K');
-    queue.debugLog();
-    queue.enqueue('L');
-    queue.debugLog();
-    result = queue.dequeue();
-    std::cout << result << " " << queue.debugDescription() << std::endl;
-    result = queue.dequeue();
-    std::cout << result << " " << queue.debugDescription() << std::endl;
-    queue.enqueue('M');
-    queue.debugLog();
-    result = queue.dequeue();
-    std::cout << result << " " << queue.debugDescription() << std::endl;
-    result = queue.dequeue();
-    std::cout << result << " " << queue.debugDescription() << std::endl;
+    queueProcess();
+
     return 0;
 }
